@@ -21,13 +21,18 @@ module Bowline
     end
   
     def check(*args)
+      update!
       Thread.new do
         check_without_thread(*args)
       end
     end
   
     def check_without_thread(url, current)
-      result  = RestClient.get(url, :platform => Platform.type, :accept => :json)
+      begin
+        result  = RestClient.get(url, :platform => Platform.type, :accept => :json)
+      rescue SocketError, RestClient::Exception
+        return
+      end
       return if result.length == 0
       result  = JSON.parse(result)
       current = Versionomy.parse(current)
