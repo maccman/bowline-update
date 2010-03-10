@@ -16,8 +16,11 @@ Gem::Specification.new do |s|
     "README"
   ]
   s.files = [
-    "README",
+    ".gitignore",
+     "README",
      "Rakefile",
+     "VERSION",
+     "bowline-update.gemspec",
      "bowline-update/bowline/update.rb"
   ]
   s.homepage = %q{http://github.com/maccman/bowline-version}
@@ -33,18 +36,18 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<versionomy>, [">= 0.3.0"])
       s.add_runtime_dependency(%q<bowline>, [">= 0"])
-      s.add_runtime_dependency(%q<restclient>, [">= 0"])
+      s.add_runtime_dependency(%q<rest-client>, [">= 0"])
       s.add_runtime_dependency(%q<rubyzip2>, [">= 2.0.1"])
     else
       s.add_dependency(%q<versionomy>, [">= 0.3.0"])
       s.add_dependency(%q<bowline>, [">= 0"])
-      s.add_dependency(%q<restclient>, [">= 0"])
+      s.add_dependency(%q<rest-client>, [">= 0"])
       s.add_dependency(%q<rubyzip2>, [">= 2.0.1"])
     end
   else
     s.add_dependency(%q<versionomy>, [">= 0.3.0"])
     s.add_dependency(%q<bowline>, [">= 0"])
-    s.add_dependency(%q<restclient>, [">= 0"])
+    s.add_dependency(%q<rest-client>, [">= 0"])
     s.add_dependency(%q<rubyzip2>, [">= 2.0.1"])
   end
 end
