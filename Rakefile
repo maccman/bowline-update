@@ -9,7 +9,7 @@ begin
     gemspec.authors = ["Alex MacCaw"]
     gemspec.add_dependency("versionomy", ">=0.3.0")
     gemspec.add_dependency("bowline")
-    gemspec.add_dependency("restclient")
+    gemspec.add_dependency("rest-client")
     gemspec.add_dependency("rubyzip2", ">= 2.0.1")
   end
 rescue LoadError
