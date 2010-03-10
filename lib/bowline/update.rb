@@ -1,26 +1,17 @@
 require "thread"
 require "versionomy"
 require "restclient"
+require "fileutils"
 require "tmpdir"
 require "zip/zip"
 require "json"
 
 module Bowline
   module Update
-    UPDATE_PATH = File.join(Desktop::Path.user_data, "update")
-    EXE_UPDATE_PATH = File.join(UPDATE_PATH, "bowline-desktop")
-  
-    def update!
-      return unless File.dir?(UPDATE_PATH)
-      if File.exist?(EXE_UPDATE_PATH)
-        FileUtils.mv(EXE_UPDATE_PATH, Desktop::Path.raw_exe)
-      end
-      FileUtils.rm_rf(APP_ROOT)
-      FileUtils.mv(UPDATE_PATH, APP_ROOT)
-      restart!
-    end
+    BACKUP = {:osx => %w{English.lproj}}
   
     def check(*args)
+      return unless Desktop.enabled?
       update!
       Thread.new do
         check_without_thread(*args)
@@ -29,34 +20,59 @@ module Bowline
   
     def check_without_thread(url, current)
       begin
-        result  = RestClient.get(url, :platform => Platform.type, :accept => :json)
-      rescue SocketError, RestClient::Exception
+        result = RestClient.get(url, :platform => Platform.type, :accept => :json)
+      rescue => e
+        Bowline::Logging.log_error(e)
         return
       end
-      return if result.length == 0
-      result  = JSON.parse(result)
+      return if result.body.length == 0
+      result  = JSON.parse(result.body)
       current = Versionomy.parse(current)
       version = Versionomy.parse(result[:version])
       if version > current
         download(result)
       end
     end
+    
+    def update!
+      return unless File.directory?(update_path)
+      update_exe
+      backup_app
+      update_app
+      restart!
+    end
   
     private
+      def update_exe
+        if File.exist?(exe_update_path)
+          FileUtils.mv(exe_update_path, Desktop::Path.raw_exe)
+        end
+      end
+      
+      def backup_app
+        backups = BACKUPS[Platform.type]
+        return unless backups
+        FileUtils.cd(APP_ROOT) do
+          FileUtils.mv_r(backups, update_path)
+        end
+      end
+      
+      def update_app
+        FileUtils.rm_rf(APP_ROOT)
+        FileUtils.mv(update_path, APP_ROOT)
+      end
+    
       def download(result)
         response = RestClient.get(result[:url], :raw_response => true)
-        # verify(file, result[:dsa_signature])
         download_dir = Dir.mktmpdir
-        unzip(result.file.path, download_dir)
-        FileUtils.mv(download_dir, UPDATE_PATH)
+        unzip(response.file.path, download_dir)
+        FileUtils.mv(download_dir, update_path)
       end  
   
       def restart!
-        exe  = Desktop::Path.exe
-        args = ARGV
+        exe_path = Desktop::Path.raw_exe
         fork do
-          sleep 1
-          system(exe, *args)
+          system(exe_path, APP_ROOT)
         end
         exit!
       end
@@ -70,7 +86,14 @@ module Bowline
           }
         }
       end
-  
+      
+      def update_path
+        File.join(Desktop::Path.user_data, "app_update")
+      end
+      
+      def exe_update_path
+        File.join(update_path, "bowline-desktop")
+      end
     extend self
   end
 end
