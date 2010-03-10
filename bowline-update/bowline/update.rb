@@ -8,9 +8,13 @@ require "json"
 module Bowline
   module Update
     UPDATE_PATH = File.join(Desktop::Path.user_data, "update")
+    EXE_UPDATE_PATH = File.join(UPDATE_PATH, "bowline-desktop")
   
     def update!
       return unless File.dir?(UPDATE_PATH)
+      if File.exist?(EXE_UPDATE_PATH)
+        FileUtils.mv(EXE_UPDATE_PATH, Desktop::Path.raw_exe)
+      end
       FileUtils.rm_rf(APP_ROOT)
       FileUtils.mv(UPDATE_PATH, APP_ROOT)
       restart!
@@ -24,6 +28,7 @@ module Bowline
   
     def check_without_thread(url, current)
       result  = RestClient.get(url, :platform => Platform.type, :accept => :json)
+      return if result.length == 0
       result  = JSON.parse(result)
       current = Versionomy.parse(current)
       version = Versionomy.parse(result[:version])
