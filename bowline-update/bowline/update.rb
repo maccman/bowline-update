@@ -48,7 +48,7 @@ module Bowline
           sleep 1
           system(exe, *args)
         end
-        exit
+        exit!
       end
     
       def unzip(fpath, tpath)

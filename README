@@ -11,3 +11,5 @@ Restarting:
 * Exit application
 * Wait a little bit, then reopen app from process
 * Exit process
+
+Will fork work on win32?
