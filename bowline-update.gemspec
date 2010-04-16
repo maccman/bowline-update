@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex MacCaw"]
-  s.date = %q{2010-03-10}
+  s.date = %q{2010-04-16}
   s.description = %q{Update manager for Bowline Apps}
   s.email = %q{info@eribium.org}
   s.extra_rdoc_files = [
@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "bowline-update.gemspec",
-     "bowline-update/bowline/update.rb"
+     "lib/bowline/update.rb"
   ]
   s.homepage = %q{http://github.com/maccman/bowline-version}
   s.rdoc_options = ["--charset=UTF-8"]
