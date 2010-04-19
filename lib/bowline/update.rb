@@ -1,6 +1,6 @@
 require "thread"
 require "versionomy"
-require "restclient"
+require "nestful"
 require "fileutils"
 require "tmpdir"
 require "zip/zip"
@@ -19,19 +19,14 @@ module Bowline
     end
   
     def check_without_thread(url, current)
-      begin
-        result = RestClient.get(url, :platform => Platform.type, :accept => :json)
-      rescue => e
-        Bowline::Logging.log_error(e)
-        return
-      end
-      return if result.body.length == 0
-      result  = JSON.parse(result.body)
+      result  = Nestful.json_get(url, :params => {:platform => Platform.type})
       current = Versionomy.parse(current)
       version = Versionomy.parse(result[:version])
       if version > current
         download(result)
       end
+    rescue => e
+      Bowline::Logging.log_error(e)
     end
     
     def update!
@@ -50,7 +45,7 @@ module Bowline
       end
       
       def backup_app
-        backups = BACKUPS[Platform.type]
+        backups = BACKUP[Platform.type]
         return unless backups
         FileUtils.cd(APP_ROOT) do
           FileUtils.mv_r(backups, update_path)
@@ -63,9 +58,9 @@ module Bowline
       end
     
       def download(result)
-        response = RestClient.get(result[:url], :raw_response => true)
+        response = Nestful.get(result[:url], :buffer => true)
         download_dir = Dir.mktmpdir
-        unzip(response.file.path, download_dir)
+        unzip(response.path, download_dir)
         FileUtils.mv(download_dir, update_path)
       end  
   

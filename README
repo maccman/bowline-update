@@ -1,15 +1,2 @@
 
-* Checks for update at a URL
-* Downloads zip file if there is an update (atomic)
-* Unzips
-* Next time app restarts, check for update folder
-* If it exists, replace app with folder, and restart
-
-
-Restarting:
-* Fork new process
-* Exit application
-* Wait a little bit, then reopen app from process
-* Exit process
-
-Will fork work on win32?
+{:version => '0.0.1', :url => 'http://example.com/zip}
