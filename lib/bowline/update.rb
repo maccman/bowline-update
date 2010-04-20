@@ -28,7 +28,7 @@ module Bowline
         :version  => current
       })
       
-      result  = Nestful.json_get(url, :params => params)
+      result  = Nestful.json_get(url, params)
       current = Versionomy.parse(current)
       version = Versionomy.parse(result["version"])
       if version > current
