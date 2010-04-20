@@ -8,6 +8,8 @@ require "json"
 
 module Bowline
   module Update
+    extend Bowline::Logging
+    
     BACKUP = {:osx => %w{English.lproj}}
   
     def check(*args)
@@ -18,19 +20,27 @@ module Bowline
       end
     end
   
-    def check_without_thread(url, current)
-      result  = Nestful.json_get(url, :params => {:platform => Platform.type})
+    def check_without_thread(url, current, params = {})
+      trace "Bowline Update - checking #{url}"
+      
+      params.merge!({
+        :platform => Platform.type,
+        :version  => current
+      })
+      
+      result  = Nestful.json_get(url, :params => params)
       current = Versionomy.parse(current)
-      version = Versionomy.parse(result[:version])
+      version = Versionomy.parse(result["version"])
       if version > current
         download(result)
       end
     rescue => e
-      Bowline::Logging.log_error(e)
+      log_error(e)
     end
     
     def update!
       return unless File.directory?(update_path)
+      trace "Bowline Update - updating!"
       update_exe
       backup_app
       update_app
@@ -58,7 +68,8 @@ module Bowline
       end
     
       def download(result)
-        response = Nestful.get(result[:url], :buffer => true)
+        trace "Bowline Update - downloading #{result["url"]}"
+        response = Nestful.get(result["url"], :buffer => true)
         download_dir = Dir.mktmpdir
         unzip(response.path, download_dir)
         FileUtils.mv(download_dir, update_path)
