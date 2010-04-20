@@ -73,6 +73,7 @@ module Bowline
         download_dir = Dir.mktmpdir
         trace "Bowline Update - unzipping"
         unzip(response.path, download_dir)
+        trace "Bowline Update - update ready"
         FileUtils.mv(download_dir, update_path)
       end  
   
