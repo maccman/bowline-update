@@ -58,7 +58,7 @@ module Bowline
         backups = BACKUP[Platform.type]
         return unless backups
         FileUtils.cd(APP_ROOT) do
-          FileUtils.mv_r(backups, update_path)
+          FileUtils.mv(backups, update_path)
         end
       end
       
@@ -71,6 +71,7 @@ module Bowline
         trace "Bowline Update - downloading #{result["url"]}"
         response = Nestful.get(result["url"], :buffer => true)
         download_dir = Dir.mktmpdir
+        trace "Bowline Update - unzipping"
         unzip(response.path, download_dir)
         FileUtils.mv(download_dir, update_path)
       end  
