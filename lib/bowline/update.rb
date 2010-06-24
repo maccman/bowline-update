@@ -79,10 +79,7 @@ module Bowline
   
       def restart!
         exe_path = Desktop::Path.raw_exe
-        fork do
-          system(exe_path, APP_ROOT)
-        end
-        exit!
+        exec(exe_path, APP_ROOT)
       end
       
       def download(result)
