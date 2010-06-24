@@ -1,10 +1,10 @@
 require 'thread'
 require 'versionomy'
-require 'nestful'
 require 'fileutils'
+require 'tempfile'
 require 'tmpdir'
 require 'json'
-require 'zipruby'
+require 'nestful'
 
 module Bowline
   module Update
@@ -67,12 +67,12 @@ module Bowline
         FileUtils.mv(update_path, APP_ROOT)
       end
     
-      def download(result)
+      def process(result)
         trace "Bowline Update - downloading #{result["url"]}"
-        response = Nestful.get(result["url"], :buffer => true)
-        download_dir = Dir.mktmpdir
+        tmp_file = download(result)
         trace "Bowline Update - unzipping"
-        unzip(response.path, download_dir)
+        download_dir = Dir.mktmpdir
+        unzip(tmp_file.path, download_dir)
         trace "Bowline Update - update ready"
         FileUtils.mv(download_dir, update_path)
       end  
@@ -84,24 +84,15 @@ module Bowline
         end
         exit!
       end
+      
+      def download(result)
+        tmp_file = Tempfile.new("bowline-update")
+        system("curl -s -o #{tmp_file.path} #{result["url"]}") || raise("Download failed")
+        tmp_file
+      end
     
-      def unzip(fpath, tpath)
-        FileUtils.cd(tpath) do
-          Zip::Archive.open(fpath) do |ar|
-            ar.each do |zf|
-              if zf.directory?
-                FileUtils.mkdir_p(zf.name)
-              else
-                dirname = File.dirname(zf.name)
-                FileUtils.mkdir_p(dirname) unless File.exist?(dirname)
-
-                open(zf.name, "wb") do |f|
-                  f << zf.read
-                end
-              end
-            end
-          end
-        end
+      def unzip(zip_path, download_dir)
+        system("unzip #{zip_path} -d #{download_dir}") || raise("Unzip failed")
       end
       
       def update_path

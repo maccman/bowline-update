@@ -1,2 +1,6 @@
+At the moment, bowline-update is only working on osx.
 
-{:version => '0.0.1', :url => 'http://example.com/zip}
+More docs coming soon.
+
+Endpoint format:
+  {:version => '0.0.1', :url => 'http://example.com/zip}

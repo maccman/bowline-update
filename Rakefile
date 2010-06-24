@@ -10,7 +10,6 @@ begin
     gemspec.add_dependency("versionomy", ">=0.3.0")
     gemspec.add_dependency("bowline")
     gemspec.add_dependency("nestful")
-    gemspec.add_dependency("rubyzip2", ">= 2.0.1")
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install jeweler"
