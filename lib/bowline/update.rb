@@ -14,6 +14,7 @@ module Bowline
   
     def check(*args)
       return unless Desktop.enabled?
+      return unless Bowline.root.writable?
       update!
       Thread.new do
         check_without_thread(*args)
