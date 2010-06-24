@@ -88,7 +88,7 @@ module Bowline
       def download(result)
         tmp_file = Tempfile.new("bowline-update")
         system("curl -s -o #{tmp_file.path} #{result["url"]}") || raise("Download failed")
-        sleep(2) # Chance for file to flush to disk :(
+        sleep(5) # Chance for file to flush to disk :(
         tmp_file
       end
     
