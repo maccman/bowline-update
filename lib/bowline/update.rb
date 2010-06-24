@@ -93,7 +93,7 @@ module Bowline
       end
     
       def unzip(tmp_file, download_dir)
-        system("unzip -d #{download_dir} #{tmp_file.path}") || raise("Unzip failed")
+        system("unzip -qq -d #{download_dir} #{tmp_file.path}") || raise("Unzip failed")
       end
       
       def update_path
