@@ -1,10 +1,10 @@
-require "thread"
-require "versionomy"
-require "nestful"
-require "fileutils"
-require "tmpdir"
-require "zip/zip"
-require "json"
+require 'thread'
+require 'versionomy'
+require 'nestful'
+require 'fileutils'
+require 'tmpdir'
+require 'json'
+require 'zipruby'
 
 module Bowline
   module Update
@@ -86,13 +86,22 @@ module Bowline
       end
     
       def unzip(fpath, tpath)
-        Zip::ZipFile.open(fpath) { |zfile|
-          zfile.each {|file|
-            file_path = File.join(tpath, file.name)
-            FileUtils.mkdir_p(File.dirname(file_path))
-            zfile.extract(file, file_path)
-          }
-        }
+        FileUtils.cd(tpath) do
+          Zip::Archive.open(fpath) do |ar|
+            ar.each do |zf|
+              if zf.directory?
+                FileUtils.mkdir_p(zf.name)
+              else
+                dirname = File.dirname(zf.name)
+                FileUtils.mkdir_p(dirname) unless File.exist?(dirname)
+
+                open(zf.name, "wb") do |f|
+                  f << zf.read
+                end
+              end
+            end
+          end
+        end
       end
       
       def update_path
