@@ -32,7 +32,7 @@ module Bowline
       current = Versionomy.parse(current)
       version = Versionomy.parse(result["version"])
       if version > current
-        download(result)
+        process(result)
       end
     rescue => e
       log_error(e)
@@ -72,7 +72,7 @@ module Bowline
         tmp_file = download(result)
         trace "Bowline Update - unzipping"
         download_dir = Dir.mktmpdir
-        unzip(tmp_file.path, download_dir)
+        unzip(tmp_file, download_dir)
         trace "Bowline Update - update ready"
         FileUtils.mv(download_dir, update_path)
       end  
@@ -88,11 +88,12 @@ module Bowline
       def download(result)
         tmp_file = Tempfile.new("bowline-update")
         system("curl -s -o #{tmp_file.path} #{result["url"]}") || raise("Download failed")
+        sleep(2) # Chance for file to flush to disk :(
         tmp_file
       end
     
-      def unzip(zip_path, download_dir)
-        system("unzip #{zip_path} -d #{download_dir}") || raise("Unzip failed")
+      def unzip(tmp_file, download_dir)
+        system("unzip -d #{download_dir} #{tmp_file.path}") || raise("Unzip failed")
       end
       
       def update_path
